@@ -18,6 +18,7 @@ namespace GeneralImprovements
         public static ManualLogSource MLS { get; private set; }
 
         private const string ExtraMonitorsSection = "ExtraMonitors";
+        #region ConfigEntries
         public static ConfigEntry<bool> ShowBlueMonitorBackground { get; private set; }
         public static ConfigEntry<int> ShipTotalMonitorNum { get; private set; }
         public static ConfigEntry<int> ShipTimeMonitorNum { get; private set; }
@@ -66,13 +67,32 @@ namespace GeneralImprovements
 
         private const string ToolsSection = "Tools";
         public static ConfigEntry<string> ScannableTools { get; private set; }
-        public static List<Type> ScannableToolVals { get; private set; } = new List<Type>();
+        public static List<Type> ScannableToolVals { get; private set; } = new List<Type>();//why is this created? it is not used
         public static ConfigEntry<bool> ToolsDoNotAttractLightning { get; private set; }
 
         private const string UISection = "UI";
         public static ConfigEntry<bool> ShowUIReticle { get; private set; }
         public static ConfigEntry<bool> HideEmptySubtextOfScanNodes { get; private set; }
+#endregion
+private string RemoveItem(string str)
+{
+    int i = str.LastIndexOf('I');
+    if (i == -1 || i + 3 >= str.Length)
+    {
+        return str;
+    }
+    if (str[i] != 'I' || str[i + 1] != 't' || str[i + 2] != 'e' || str[i + 3] != 'm')
+    {
+        return str;
+    }
+    char[] String = new char[str.Length - 3];
+    for (int j = i; j >= 0; j--)
+    {
+        String[j] = str[j];
+    }
+    return String.ToString();
 
+}
         private void Awake()
         {
             var validKeys = Enum.GetValues(typeof(Key)).Cast<int>().Where(e => e < (int)Key.OEM1).Select(e => Enum.GetName(typeof(Key), e))
@@ -80,9 +100,17 @@ namespace GeneralImprovements
 
             var validSnapRotations = Enumerable.Range(0, 360 / 15).Select(n => n * 15).Where(n => n == 0 || 360 % n == 0).ToArray();
 
-            var validToolTypes = new List<Type> { typeof(BoomboxItem), typeof(ExtensionLadderItem), typeof(FlashlightItem), typeof(JetpackItem), typeof(LockPicker), typeof(RadarBoosterItem),
-                                                typeof(Shovel), typeof(SprayPaintItem), typeof(StunGrenadeItem), typeof(TetraChemicalItem), typeof(WalkieTalkie), typeof(PatcherTool) };
-            var validToolStrings = string.Join(", ", "All", validToolTypes.ToArray());
+            var validToolTypes = new string[] { nameof(BoomboxItem), nameof(ExtensionLadderItem), nameof(FlashlightItem), nameof(JetpackItem), nameof(LockPicker), nameof(RadarBoosterItem),
+                                                nameof(Shovel), nameof(SprayPaintItem), nameof(StunGrenadeItem), nameof(TetraChemicalItem), nameof(WalkieTalkie), nameof(PatcherTool) };
+            var validToolStrings = string.Empty;
+            for(int i = 0; i < validToolTypes.Length; i++)
+            { 
+                if (i == validToolTypes.Length - 1){
+                    validToolStrings += $"{RemoveItem(validToolTypes[i])}";    
+                    break;
+                }
+                validToolStrings += $"{RemoveItem(validToolTypes[i])}, ";
+            }
 
             MLS = Logger;
 
